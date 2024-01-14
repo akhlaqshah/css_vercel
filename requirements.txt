@@ -1,0 +1,8 @@
+django
+djangorestframework
+pyyaml
+requests
+django-cors-headers
+djongo
+gunicorn==20.1.0
+django-database-url==1.0.3
