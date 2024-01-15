@@ -11,13 +11,26 @@ invalid_request = "Invalid request method";
 user_id_not_found = "user id not found"
 
 @api_view(['GET'])
+def get_empty(request):
+    body = request.body
+    print(body)
+    
+
+    
+    return JsonResponse({"error":"unknown request"})
+
+
+@api_view(['GET'])
 def get_subjects(request):
     body = request.body
     print(body)
+    if request.GET.get('userId') == None:
+        return JsonResponse({'subjects': [], 'error': user_id_not_found})
+        
     subjects = Subject.objects.all()
 
     
-    return JsonResponse(list(subjects.values()), safe=False)
+    return JsonResponse({'subjects': list(subjects.values()), 'error': None})
 
 @api_view(['GET'])
 def get_all_quizes(request):
@@ -83,13 +96,15 @@ def add_new_user(request):
     try:
         if request.method == 'POST':
             data = json.loads(request.body)
-            print(data)
-            print(type(data))
+            
+            
             if data.get('userId') != None and data.get('user_name') != None and data.get('email') != None and data.get('password') != None:
                 # questions = Quiz.objects.filter(quizId=request.GET.get('userId'))
-                
+                user = AppUser.objects.filter(email=data.get('email'))
+                if user:
+                    return JsonResponse({'user': None, 'error': f"user already exist with email {data.get('email')}"})
+                    
                 AppUser.save(AppUser(**data))
-                
                 return JsonResponse({'user': data, 'error': None})
             else:
                 return JsonResponse({'error': "invalid/missing user data", 'user':None})
